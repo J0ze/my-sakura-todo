@@ -231,7 +231,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0d14] selection:bg-cyan-500/30 selection:text-white relative font-sans overflow-hidden">
+    // 修改1：根容器允许 Y 轴滚动 (overflow-y-auto)，并去掉强制 h-screen
+    // 只有在 md (电脑端) 以上才强制 hidden 和 h-screen
+    <div className="min-h-screen bg-[#0b0d14] selection:bg-cyan-500/30 selection:text-white relative font-sans overflow-x-hidden overflow-y-auto md:overflow-hidden">
       {errorMsg && (
         <div className="absolute top-0 left-0 w-full bg-red-900/90 text-white p-3 text-center z-50 border-b border-red-500 font-mono text-sm">
             SYSTEM ERROR: {errorMsg}
@@ -240,33 +242,28 @@ export default function App() {
 
       {/* --- 装饰背景 --- */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-         {/* 顶部柔光 */}
          <div className='absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#1e2338] to-transparent opacity-40'></div>
-         {/* 底部网格 */}
          <div className="absolute bottom-0 left-0 w-full h-1/3 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:40px_40px] [transform:perspective(1000px)_rotateX(60deg)] origin-bottom"></div>
          
-         {/* 新增：漂浮的“数字花瓣” (微小的发光方块) */}
+         {/* 漂浮装饰 */}
          <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-cyan-500/50 rotate-45 animate-pulse shadow-[0_0_5px_cyan]"></div>
          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-pink-500/40 rotate-12 animate-pulse shadow-[0_0_5px_pink] delay-700"></div>
          <div className="absolute bottom-1/4 left-10 w-1 h-1 bg-cyan-400/30 animate-ping duration-1000"></div>
-         <div className="absolute top-20 right-20 w-2 h-2 border border-white/10 rotate-45 opacity-50"></div>
-
-         {/* 新增：UI 标记点 (+号) */}
+         
+         {/* UI 标记点 */}
          <div className="absolute top-[15%] left-[5%] text-white/10 font-mono text-xs select-none">+</div>
          <div className="absolute bottom-[15%] right-[5%] text-white/10 font-mono text-xs select-none">+</div>
          <div className="absolute top-[15%] right-[5%] text-white/10 font-mono text-xs select-none">+</div>
          <div className="absolute bottom-[15%] left-[5%] text-white/10 font-mono text-xs select-none">+</div>
-         
-         {/* 新增：垂直播放线 */}
-         <div className="absolute top-0 left-[10%] w-[1px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent dashed"></div>
-         <div className="absolute top-0 right-[10%] w-[1px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent dashed"></div>
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 h-screen flex flex-col">
+      {/* 修改2：主容器高度策略调整 */}
+      {/* 电脑端 (md): h-screen (一屏显示) */}
+      {/* 手机端: min-h-screen (根据内容撑开，允许页面滚动) */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 min-h-screen md:h-screen flex flex-col">
         {/* Title Section */}
-        <header className="text-center mb-10 flex-shrink-0 mt-6 relative">
+        <header className="text-center mb-6 md:mb-10 flex-shrink-0 mt-6 relative">
           <div className="flex items-center justify-center gap-6">
-            {/* 左侧赛博樱花 */}
             <div className="hidden md:block animate-[spin_12s_linear_infinite]">
                 <Flower className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] opacity-90" size={36} strokeWidth={1.5} />
             </div>
@@ -280,7 +277,6 @@ export default function App() {
               </p>
             </div>
 
-            {/* 右侧赛博樱花 */}
             <div className="hidden md:block animate-[spin_12s_linear_infinite_reverse]">
                 <Flower className="text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)] opacity-90" size={36} strokeWidth={1.5} />
             </div>
@@ -288,9 +284,15 @@ export default function App() {
         </header>
 
         {/* Two Column Layout */}
-        <div className="flex-1 flex flex-col md:flex-row gap-8 md:gap-12 min-h-0 pb-8">
+        {/* 修改3：布局容器 */}
+        {/* md:flex-row (电脑端横排), flex-col (手机端竖排) */}
+        {/* 去掉手机端的 flex-1 强制填满，让它自然延伸 */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 md:flex-1 md:min-h-0 pb-8">
           {/* LPH: Cyan Theme */}
-          <div className="flex-1 min-h-0 relative z-10">
+          {/* 修改4：每个列表的高度 */}
+          {/* md:flex-1 (电脑端自适应) */}
+          {/* h-[500px] (手机端固定给 500px 高度，保证空间) */}
+          <div className="w-full h-[500px] md:h-auto md:flex-1 min-h-0 relative z-10">
             <TodoList 
               title="LPH // UNIT-01" 
               side="left" 
@@ -309,7 +311,8 @@ export default function App() {
           </div>
 
           {/* LSB: Pink Theme */}
-          <div className="flex-1 min-h-0 relative z-10">
+          {/* 同样给手机端 500px 高度 */}
+          <div className="w-full h-[500px] md:h-auto md:flex-1 min-h-0 relative z-10">
             <TodoList 
               title="LSB // UNIT-02" 
               side="right" 
